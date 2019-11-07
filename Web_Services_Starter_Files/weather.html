@@ -1,0 +1,187 @@
+<!-- Home Page -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <title>Weather Information</title>
+    <!-- Bootstrap core CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+	<style>
+		#thermometer_inner { width: 95%; height: 20%; margin:2.5%; background: red; position:absolute; bottom:0;}
+		#thermometer_outer {height:400px; position:relative;}
+		#temp_today { color:white; text-align:center; position:relative; top:50%; }
+	</style>
+  </head>
+  <body>
+  	<div class="container">
+		<br>
+		<div class="container">
+			<form>
+			  <div class="form-group row">
+				<label for="latt" class="col-sm-1 col-form-label">Latitude:</label>
+				<div class="col-sm-3">
+				  <input type="number" class="form-control" id="latt_id" placeholder="latitude">
+				</div>
+			  
+				<label for="longt" class="col-sm-1 col-form-label">Longitude:</label>
+				<div class="col-sm-3">
+				  <input type="text" class="form-control" id="longt_id" placeholder="longitude">
+				</div>
+			  </div>
+			  <div class="form-group row">
+				<div class="col-sm-5 ">
+				  <button type="button" class="btn btn-primary" onclick="getWeather()">Get Weather</button>
+				</div>
+			  </div>
+			</form>
+		</div>
+		<h1 style="text-align:center" id="bigTitle">Weather Forecast</h1>
+		<hr>
+		<div class="row">
+			<div class="col-4">
+				<div class="card" >
+					<div id="thermometer_outer">
+						<div id="thermometer_inner"><p id="temp_today" class="h3"> 0 F</p></div>
+					</div>
+					<div class="card-body">
+					    <h5 class="text-center">Thermometer</h5>
+					</div>
+				</div>
+			</div>
+			<div class="col-4">
+				<div class="card" style="height:100%;">
+					<div class="my-auto">
+						<!-- source for images: https://www.iconfinder.com/iconsets/weather-line-19 -->
+						<img id="image_today" class="img-fluid" src="img/clear-day.png" alt="Today's Weather Icon">
+						<p id="icon_today" class="h3" style="text-align:center">Icon</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-4">
+				<div class="card " style="height:100%;">
+					<div class="my-auto">
+						<p class="h3" style="padding-left:15px;">Precipitation: <span id="precip_today">10%</span><br>
+					    Humidity: <span id="humidity_today">80%</span><br>
+					    Wind Speed: <span id="wind_today">5</span> mph<br>
+					    Summary: <span id="summary_today">Summary Info</span></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<br>
+		<h2 class="h1" style="text-align:center;">6 Day Forecast</h2>
+		<hr>
+		<div class="row" id="6_day_forecast">
+			
+		</div>
+		<br>
+	</div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+	<script>
+		$(document).ready(function() {
+			var url ='https://api.darksky.net/forecast/9d744787846b74b2015c2e34c0fd4832/37.8267,-122.4233'; //Place your DarkSky API Call Here 
+			$.ajax({url:url, dataType:"jsonp"}).then(function(data) {
+				console.log("AJAX CALLED")
+				var JVicon_today = data.currently.icon;
+				var JVimage_today = "img/" + JVicon_today + ".png";
+				var JVtemp_today = data.currently.apparentTemperature;
+				var JVthermometer_inner = Math.max(0, JVtemp_today);
+				JVthermometer_inner = Math.min(100, JVthermometer_inner);
+				//JVthermometer_inner = String.valueOf(JVthermometer_inner);
+
+
+				var JVprecip_today = data.currently.precipProbability * 100;
+				var JVhumidity_today = data.currently.humidity * 100;
+				var JVwind_today = data.currently.windSpeed;
+				var JVsummary_today = data.minutely.summary;
+				var JVthermoColor = "gray";
+				if(JVthermometer_inner > 85) JVthermoColor = "red";
+				if(JVthermometer_inner < 65) JVthermoColor = "blue";
+
+				document.getElementById("image_today").src = JVimage_today;
+				document.getElementById("icon_today").innerHTML = JVicon_today;
+				document.getElementById("temp_today").innerHTML = JVtemp_today + " F";
+				document.getElementById("thermometer_inner").style.height = JVthermometer_inner + "%";
+				document.getElementById("thermometer_inner").style.background = JVthermoColor;
+				document.getElementById("precip_today").innerHTML = JVprecip_today + "%";
+				document.getElementById("humidity_today").innerHTML = JVhumidity_today + "%";
+				document.getElementById("wind_today").innerHTML = JVwind_today;
+				document.getElementById("summary_today").innerHTML = JVsummary_today;
+
+				//console.log(JVthermometer_inner);
+				var week_names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']; //This is a helper array to help convert the day of the week [0-7] to a named value [Sunday - Saturday]
+				var dailyinnerHTML = "";
+				var i
+				for( i = 1; i < 7;i++){
+					var dayInfo = data.daily.data[i];
+					var unix_time = dayInfo.time;//Retrieve the current timestamp
+					var javascript_time = new Date(unix_time * 1000);
+					var weatherDay = javascript_time.getDay();
+					console.log(dayInfo)
+					dailyinnerHTML = dailyinnerHTML + "\<div class=\"col-2\"\>\<div class=\"card\"\>\<img class=\"card-img-top\" src=img/" + dayInfo.icon +".png alt=\"Card image cap\"\>\<div class=\"card-body\"\>\<h5 class=\"card-title\"\>" + week_names[weatherDay] + "</h5\>\<p class=\"card-text\">High: " + dayInfo.apparentTemperatureHigh +  "<br> Low: " + dayInfo.apparentTemperatureLow + "</p\></div\></div\></div\>"
+				}
+				//console.log(dailyinnerHTML);
+				document.getElementById("6_day_forecast").innerHTML = dailyinnerHTML;
+				
+				
+			})
+		})
+		function getWeather(){
+			latIn = document.getElementById("latt_id").value;
+			longIn = document.getElementById("longt_id").value;
+			document.getElementById("bigTitle").innerHTML = "Forecast for: " + latIn + ", " + longIn
+
+			var url ='https://api.darksky.net/forecast/9d744787846b74b2015c2e34c0fd4832/' + latIn + ',' +longIn; //Place your DarkSky API Call Here 
+			$.ajax({url:url, dataType:"jsonp"}).then(function(data) {
+				console.log("AJAX CALLED")
+				var JVicon_today = data.currently.icon;
+				var JVimage_today = "img/" + JVicon_today + ".png";
+				var JVtemp_today = data.currently.apparentTemperature;
+				var JVthermometer_inner = Math.max(0, JVtemp_today);
+				JVthermometer_inner = Math.min(100, JVthermometer_inner);
+				//JVthermometer_inner = String.valueOf(JVthermometer_inner);
+
+
+				var JVprecip_today = data.currently.precipProbability * 100;
+				var JVhumidity_today = data.currently.humidity * 100;
+				var JVwind_today = data.currently.windSpeed;
+				var JVsummary_today = data.minutely.summary;
+				var JVthermoColor = "gray";
+				if(JVthermometer_inner > 85) JVthermoColor = "red";
+				if(JVthermometer_inner < 65) JVthermoColor = "blue";
+
+				document.getElementById("image_today").src = JVimage_today;
+				document.getElementById("icon_today").innerHTML = JVicon_today;
+				document.getElementById("temp_today").innerHTML = JVtemp_today + " F";
+				document.getElementById("thermometer_inner").style.height = JVthermometer_inner + "%";
+				document.getElementById("thermometer_inner").style.background = JVthermoColor;
+				document.getElementById("precip_today").innerHTML = JVprecip_today + "%";
+				document.getElementById("humidity_today").innerHTML = JVhumidity_today + "%";
+				document.getElementById("wind_today").innerHTML = JVwind_today;
+				document.getElementById("summary_today").innerHTML = JVsummary_today;
+
+				//console.log(JVthermometer_inner);
+				var week_names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']; //This is a helper array to help convert the day of the week [0-7] to a named value [Sunday - Saturday]
+				var dailyinnerHTML = "";
+				var i
+				for( i = 1; i < 7;i++){
+					var dayInfo = data.daily.data[i];
+					var unix_time = dayInfo.time;//Retrieve the current timestamp
+					var javascript_time = new Date(unix_time * 1000);
+					var weatherDay = javascript_time.getDay();
+					console.log(dayInfo)
+					dailyinnerHTML = dailyinnerHTML + "\<div class=\"col-2\"\>\<div class=\"card\"\>\<img class=\"card-img-top\" src=img/" + dayInfo.icon +".png alt=\"Card image cap\"\>\<div class=\"card-body\"\>\<h5 class=\"card-title\"\>" + week_names[weatherDay] + "</h5\>\<p class=\"card-text\">High: " + dayInfo.apparentTemperatureHigh +  "<br> Low: " + dayInfo.apparentTemperatureLow + "</p\></div\></div\></div\>"
+				}
+				//console.log(dailyinnerHTML);
+				document.getElementById("6_day_forecast").innerHTML = dailyinnerHTML;
+				
+				
+			})
+		}
+ 	</script>
+</body>
+</html>
